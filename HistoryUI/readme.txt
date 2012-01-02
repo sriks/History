@@ -1,0 +1,1 @@
+This day in history is a information app about the a most prominent event in world history that happened today. This version is developed in QML to be published in ovi.

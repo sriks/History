@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/HistoryInfo.qml</file>
+        <file>qml/Today.qml</file>
+        <file>qml/Skin.qml</file>
+        <file>images/tb_back.svg</file>
+        <file>images/tb_info.svg</file>
+        <file>images/tb_menu.svg</file>
+        <file>images/tb_favorite.svg</file>
+        <file>images/tb_close.svg</file>
+        <file>images/tb_home.svg</file>
+        <file>qml/FavoritesList.qml</file>
+        <file>qml/Favorite.qml</file>
+        <file>images/bkg_h4.jpg</file>
+        <file>images/tb_delete.svg</file>
+        <file>qml/DefaultToolButton.qml</file>
+        <file>qml/HistoryConstants.js</file>
+        <file>images/tb_share5.svg</file>
+        <file>qml/LoadingScreen.qml</file>
+        <file>qml/harmattan/Banner.qml</file>
+        <file>qml/symbian/Banner.qml</file>
+        <file>images/bkg.jpg</file>
+        <file>images/History.png</file>
+    </qresource>
+</RCC>

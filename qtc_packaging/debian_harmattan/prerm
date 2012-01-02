@@ -1,0 +1,9 @@
+#!/bin/sh
+
+/usr/bin/aegis-exec -s -u user dbus-send --dest=com.meego.msyncd --print-reply /synchronizer com.meego.msyncd.uninstallPlugin string:'historysync'
+
+# Clean up the feed items published by this application
+/usr/bin/aegis-exec -s -u user dbus-send --dest=com.nokia.home.EventFeed --print-reply /eventfeed com.nokia.home.EventFeed.removeItemsBySourceName string:'historysync'
+
+# Make sure the uninstallation is always considered successful
+exit 0
