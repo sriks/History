@@ -40,7 +40,6 @@ HistoryEngine::HistoryEngine(QObject *parent) :
     d = new HistoryEnginePrivate;
     d->messageService = NULL;
     d->invalidateFavList = true;
-    d->started = false;
     d->rssManager = new RSSManager(this);
     connect(d->rssManager,SIGNAL(updateAvailable(QUrl,int)),
     this,SLOT(handleUpdateAvailable(QUrl,int)));
@@ -57,16 +56,16 @@ HistoryEngine::~HistoryEngine() {
   **/
 void HistoryEngine::start() {
     // add subscription
-    d->rssManager->addFeed(FeedSubscription(KTDIHUrl,60*24));
+    d->started = d->rssManager->add(KTDIHUrl,60*1000*24);
     d->rssManager->updateAll();
-    d->started = true;
 }
 
 QVariant HistoryEngine::historyInfo() const {
     return qVariantFromValue( (QObject*)d->historyInfo);
 }
 
-void HistoryEngine::handleUpdateAvailable(QUrl sourceUrl, int updateditems) {
+void HistoryEngine::handleUpdateAvailable(QUrl sourceUrl, int newItemsCount) {
+    Q_UNUSED(newItemsCount)
     // Retrieve item
     RSSParser* parser = d->rssManager->parser(sourceUrl); // ownership is transfered
     d->historyInfo = parseInfo(parser);
@@ -187,10 +186,10 @@ QStringList HistoryEngine::favFileList() {
 
 HistoryInfo* HistoryEngine::parseInfo(RSSParser* parser) {
     HistoryInfo* info = new HistoryInfo(this);
-    info->mTitle = RSSParser::decodeHtml(parser->itemElement(1,RSSParser::title)).trimmed();
-    info->mDescription = RSSParser::decodeHtml(parser->itemElement(1,RSSParser::description)).trimmed();
-    info->mLink = parser->itemElement(1,RSSParser::link);
-    info->mEventDate = parser->itemElement(1,"eventDate").trimmed();
+    info->mTitle = RSSParser::decodeHtml(parser->itemElement(0,RSSParser::title)).trimmed();
+    info->mDescription = RSSParser::decodeHtml(parser->itemElement(0,RSSParser::description)).trimmed();
+    info->mLink = parser->itemElement(0,RSSParser::link);
+    info->mEventDate = parser->itemElement(0,"eventDate").trimmed();
     return info;
 }
 
@@ -199,7 +198,6 @@ int HistoryEngine::favoritesCount() {
 }
 
 bool HistoryEngine::deleteFavorite(int index) {
-    //QStringList fileList = favFileList();
     QString favToDel = favFileList().at(index);
     QDir dir;
     dir.setPath(KFavoritesFolder);

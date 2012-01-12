@@ -237,7 +237,7 @@ PageStackWindow {
             if(canCreateToolButton) {
                 var tb = toolButtonComponent.createObject(parent);
                 //tb.iconSource = skin.deleteIcon;
-                tb.platformIconId = "toolbar-delete";
+                tb.platformIconId = "update-delete";
                 tb.toolId = HistoryConstants.deleteAllFavsId;
                 tb.actionHandler = root;
                 return tb;

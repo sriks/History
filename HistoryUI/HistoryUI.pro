@@ -20,7 +20,7 @@ DEPLOYMENT += my_deployment
 }
 
 # Speed up launching on MeeGo/Harmattan when using applauncherd daemon
-#CONFIG += qdeclarative-boostable
+CONFIG += qdeclarative-boostable
 
 # Define QMLJSDEBUGGER to allow debugging of QML in debug builds
 # (This might significantly increase build time)
@@ -51,7 +51,14 @@ OTHER_FILES += qml/main.qml \
     qml/FavoritesList.qml \
     qml/Favorite.qml \
     qml/DefaultToolButton.qml \
-    qml/HistoryConstants.js
+    qml/HistoryConstants.js \
+    qtc_packaging/debian_harmattan/rules \
+    qtc_packaging/debian_harmattan/README \
+    qtc_packaging/debian_harmattan/manifest.aegis \
+    qtc_packaging/debian_harmattan/copyright \
+    qtc_packaging/debian_harmattan/control \
+    qtc_packaging/debian_harmattan/compat \
+    qtc_packaging/debian_harmattan/changelog
 
 symbian: {
     OTHER_FILES += qml/symbian/Banner.qml

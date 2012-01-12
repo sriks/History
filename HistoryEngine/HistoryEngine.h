@@ -4,6 +4,7 @@
 #include <QUrl>
 #include <QVariant>
 
+#include <QNetworkReply>
 class HistoryInfo:public QObject
 {
     Q_OBJECT
@@ -58,7 +59,7 @@ public slots:
     bool share(int index);
 
 private slots:
-    void handleUpdateAvailable(QUrl sourceUrl, int updateditems);
+    void handleUpdateAvailable(QUrl url, int newItemsCount);
 
 private:
     HistoryInfo* parseInfo(RSSParser* parser);

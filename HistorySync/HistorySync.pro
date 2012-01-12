@@ -49,21 +49,5 @@ sync.files = xml/sync/*
 service.path = /etc/sync/profiles/service
 service.files = xml/service/*
 
-#settingsdesktop.path = /usr/share/duicontrolpanel/desktops
-#settingsdesktop.files = settings/feedexample.desktop
-
-#settingsxml.path = /usr/share/duicontrolpanel/uidescriptions
-#settingsxml.files = settings/feedexample.xml
-
-INSTALLS += target client sync service #settingsdesktop settingsxml
+INSTALLS += target client sync service
 }
-
-#unix:!symbian {
-#    maemo5 {
-#        target.path = /opt/usr/lib
-#    } else {
-#        target.path = /usr/lib
-#    }
-#    INSTALLS += target
-#}
-
