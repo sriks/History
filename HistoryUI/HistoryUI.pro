@@ -88,10 +88,7 @@ contains(MEEGO_EDITION,harmattan) {
     desktopfile.path = /usr/share/applications
     INSTALLS += desktopfile
 
-}
-
-contains(MEEGO_EDITION,harmattan) {
-    desktopfile.files = HistoryUI.desktop
-    desktopfile.path = /usr/share/applications
-    INSTALLS += desktopfile
+    harmattandesktopfile.files = $${TARGET}_harmattan.desktop
+    harmattandesktopfile.path = /usr/share/applications
+    INSTALLS += harmattandesktopfile
 }
