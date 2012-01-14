@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QMap>
 #include <QUrl>
+#include <QFile>
 #include <meventfeed.h>
 #include "HistorySync.h"
 #include "HistoryEngine.h"
@@ -12,11 +13,22 @@ class HistorySyncPrivate {
 public:
     HistorySyncPrivate() {
         engine = 0;
+        f = new QFile("/home/user/historysync.log");
+        if(f->open(QIODevice::Append))
+            writeLog(QString("New Log Starts: ") + QDateTime::currentDateTime().toString());
     }
     ~HistorySyncPrivate() {
         delete engine;
+        f->close();
+        delete f;
     }
+    void writeLog(QString msg) {
+        if(f->isOpen())
+            f->write(msg.toAscii());
+    }
+
     HistoryEngine* engine;
+    QFile* f;
 };
 
 HistorySync* createPlugin(const QString& aPluginName,
@@ -34,6 +46,7 @@ HistorySync::HistorySync(const QString& aPluginName,
             Buteo::PluginCbInterface *aCbInterface) :
     Buteo::ClientPlugin(aPluginName,aProfile,aCbInterface) {
     d = new HistorySyncPrivate;
+
 }
 
 HistorySync::~HistorySync() {
@@ -41,22 +54,21 @@ HistorySync::~HistorySync() {
 }
 
 bool HistorySync::startSync() {
-    QTimer::singleShot(500,d->engine,SLOT(start()));
-//    QTimer::singleShot(10000,this,SLOT(test()));
+    d->writeLog(QString("HistorySync::startSync()"));
+    int id = MEventFeed::instance()->addItem(QString("/usr/share/icons/hicolor/80x80/apps/HistoryUI80.png"),
+                          QString("This day in history"),
+                                             QString("This is a test!"),
+                          QStringList(),
+                          QDateTime::currentDateTime(),
+                          QString(),
+                          false,
+                          QUrl("tdih://today"),
+                          QString("historysync"),
+                          QString("This day in history"));
+
+    d->writeLog(QString("test eventfeed id:")+QString().setNum(id));
+    QTimer::singleShot(100,d->engine,SLOT(start()));
     return true;
-
-
-//    if(d->update())
-//        qDebug()<<Q_FUNC_INFO<<"Updated event feed.";
-//    else
-//        qDebug()<<Q_FUNC_INFO<<"Updated event feed FAILED.";
-
-////    updateResults(Buteo::SyncResults(QDateTime::currentDateTime(),
-////                  Buteo::SyncResults::SYNC_RESULT_SUCCESS,
-////                  Buteo::SyncResults::NO_ERROR));
-//    //Notify Sync FW of result - Now sync fw will call uninit and then will unload plugin
-//    emit success(getProfileName(), "Success!!");
-//    return true;
 }
 
 bool HistorySync::init() {
@@ -79,13 +91,15 @@ void HistorySync::connectivityStateChanged(Sync::ConnectivityType aType, bool aS
 }
 
 void HistorySync::updateReady(QVariant update) {
+    d->writeLog(QString("HistorySync::updateReady"));
     HistoryInfo* info = qobject_cast<HistoryInfo*>(update.value<QObject*>());
     QString title = "Unable to update";
     qlonglong id = -1;
     MEventFeed::instance()->removeItemsBySourceName("historysync");
     if(info && !info->title().isEmpty()) {
         title = info->title();
-        id = MEventFeed::instance()->addItem(QString("icon-m-transfer-sync"),
+        // icon-m-transfer-sync
+        id = MEventFeed::instance()->addItem(QString("/usr/share/icons/hicolor/80x80/apps/HistoryUI80.png"),
                               QString("This day in history"),
                               title,
                               QStringList(),
@@ -96,10 +110,13 @@ void HistorySync::updateReady(QVariant update) {
                               QString("historysync"),
                               QString("This day in history"));
      }
+
       if (id != -1)
           emit success(getProfileName(), "Success.");
       else
           emit error(getProfileName(), "Error.", Buteo::SyncResults::SYNC_RESULT_FAILED);
+      d->writeLog(title);
+      d->writeLog(QString("HistorySync::updateReady: ")+QString().setNum(id));
 }
 
 // eof

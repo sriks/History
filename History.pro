@@ -15,7 +15,12 @@ SUBDIRS += \
     HistoryUI
 
 contains(MEEGO_EDITION,harmattan) {
-    SUBDIRS += HistorySync
+    SUBDIRS += HistorySync # event feed integration
 }
+
+
+
+
+
 
 

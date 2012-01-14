@@ -12,7 +12,7 @@
     <profile type="service" name="historysync" >
     </profile>
     <!--This is used by sync-fw to set customized scheduling information for the profile -->
-    <!--srikanth: using 12 hr interval -->
-   <schedule enabled="true" interval="1" days="1,2,3,4,5,6,7" syncconfiguredtime="" time="">
+    <!--srikanth: using 6 hr interval -->
+   <schedule enabled="true" interval="60" days="1,2,3,4,5,6,7" syncconfiguredtime="" time="">
    </schedule>
 </profile>

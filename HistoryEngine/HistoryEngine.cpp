@@ -52,11 +52,12 @@ HistoryEngine::~HistoryEngine() {
 
 /*!
   Starts feed. Use this method to get updated in periodic intervals.
-  Use update() to get a single shot update.
+  Use update(QUrl) to get a single shot update.
   **/
 void HistoryEngine::start() {
     // add subscription
-    d->started = d->rssManager->add(KTDIHUrl,60*1000*24);
+    d->started = d->rssManager->add(KTDIHUrl,60*1000*12); // 12 hr interval
+    d->rssManager->setUpdateOnNewItemsOnly(KTDIHUrl,false);
     d->rssManager->updateAll();
 }
 
@@ -100,7 +101,7 @@ QStringList HistoryEngine::favoriteTitles() {
            QFile f(KFavoritesFolder+"/"+favFiles.at(i));
            if(f.open(QIODevice::ReadOnly)) {
                parser->setSource(&f);
-               favTitles.append(RSSParser::decodeHtml(parser->itemElement(1,RSSParser::title)).trimmed());
+               favTitles.append(RSSParser::decodeHtml(parser->itemElement(0,RSSParser::title)).trimmed());
            }
            f.close();
        }
