@@ -57,7 +57,9 @@ public slots:
     void start();
     void update();
     bool share(int index);
-
+#ifdef DC_HARMATTAN
+    void updateEventFeed(QVariant);
+#endif
 private slots:
     void handleUpdateAvailable(QUrl url, int newItemsCount);
 

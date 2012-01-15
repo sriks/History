@@ -16,6 +16,10 @@
 #include <QFile>
 #include <QMessage>
 #include <QMessageService>
+#include <QDateTime>
+#ifdef DC_HARMATTAN
+#include <meventfeed.h>
+#endif
 #include "HistoryEngine.h"
 #include "rssmanager.h"
 #include "rssparser.h"
@@ -42,7 +46,7 @@ HistoryEngine::HistoryEngine(QObject *parent) :
     d->invalidateFavList = true;
     d->rssManager = new RSSManager(this);
     connect(d->rssManager,SIGNAL(updateAvailable(QUrl,int)),
-    this,SLOT(handleUpdateAvailable(QUrl,int)));
+            this,SLOT(handleUpdateAvailable(QUrl,int)));
     connect(d->rssManager,SIGNAL(error(QString,QUrl)),this,SIGNAL(error(QString,QUrl)));
 }
 
@@ -72,6 +76,9 @@ void HistoryEngine::handleUpdateAvailable(QUrl sourceUrl, int newItemsCount) {
     d->historyInfo = parseInfo(parser);
     parser->deleteLater();
     emit updateReady(qVariantFromValue( (QObject*)d->historyInfo));
+#ifdef DC_HARMATTAN
+    updateEventFeed(qVariantFromValue( (QObject*)d->historyInfo));
+#endif
 }
 
 /*!
@@ -119,12 +126,6 @@ return favTitles;
 QVariant HistoryEngine::favorites() {
     return qVariantFromValue(favoriteTitles());
 }
-
-//bool HistoryEngine::isFavorite(const HistoryInfo& info)
-//{
-//    QString fileToCheck = fileNameForKey(info.title);
-//    return favFileList().contains(fileToCheck);
-//}
 
 bool HistoryEngine::saveAsFavorite() {
     // TODO: error handling is really confusing, fix it.
@@ -234,7 +235,26 @@ bool HistoryEngine::share(int index) {
             d->messageService = new QMessageService(this);
         result =  d->messageService->compose(m);
     }
-return result;
+    return result;
 }
 
+#ifdef DC_HARMATTAN
+void HistoryEngine::updateEventFeed(QVariant update) {
+    HistoryInfo* info = qobject_cast<HistoryInfo*>(update.value<QObject*>());
+    if(info && !info->title().isEmpty()) {
+        QString title = info->title();
+        MEventFeed::instance()->removeItemsBySourceName("historysync");
+        MEventFeed::instance()->addItem(QString("/usr/share/icons/hicolor/80x80/apps/HistoryUI80.png"),
+                              QString("This day in history"),
+                              title,
+                              QStringList(),
+                              QDateTime::currentDateTime(),
+                              QString(),
+                              false,
+                              QUrl("tdih://today"),
+                              QString("historysync"),
+                              QString("This day in history"));
+     }
+}
+#endif
 // eof
