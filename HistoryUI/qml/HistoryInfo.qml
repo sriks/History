@@ -6,7 +6,6 @@ ListView {
     id: historyInfo;
     model: 1;
     delegate: infoDelegate;
-
     Component {
         id: infoDelegate;
 

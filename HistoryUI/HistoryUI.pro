@@ -51,35 +51,27 @@ OTHER_FILES += qml/main.qml \
     qml/FavoritesList.qml \
     qml/Favorite.qml \
     qml/DefaultToolButton.qml \
-    qml/HistoryConstants.js \
-    qtc_packaging/debian_harmattan/rules \
-    qtc_packaging/debian_harmattan/README \
-    qtc_packaging/debian_harmattan/manifest.aegis \
-    qtc_packaging/debian_harmattan/copyright \
-    qtc_packaging/debian_harmattan/control \
-    qtc_packaging/debian_harmattan/compat \
-    qtc_packaging/debian_harmattan/changelog
+    qml/HistoryConstants.js
+
 
 symbian: {
     OTHER_FILES += qml/symbian/Banner.qml
 }
 contains(MEEGO_EDITION,harmattan) {
-    OTHER_FILES += qml/harmattan/Banner.qml
+    OTHER_FILES +=  qml/harmattan/Banner.qml \
+                    qtc_packaging/debian_harmattan/rules \
+                    qtc_packaging/debian_harmattan/README \
+                    qtc_packaging/debian_harmattan/manifest.aegis \
+                    qtc_packaging/debian_harmattan/copyright \
+                    qtc_packaging/debian_harmattan/control \
+                    qtc_packaging/debian_harmattan/compat \
+                    qtc_packaging/debian_harmattan/changelog \
+                    qtc_packaging/debian_harmattan/postinst \
+                    qtc_packaging/debian_harmattan/prerm
+
 }
 
-OTHER_FILES += \
-    qtc_packaging/debian_harmattan/rules \
-    qtc_packaging/debian_harmattan/README \
-    qtc_packaging/debian_harmattan/manifest.aegis \
-    qtc_packaging/debian_harmattan/copyright \
-    qtc_packaging/debian_harmattan/control \
-    qtc_packaging/debian_harmattan/compat \
-    qtc_packaging/debian_harmattan/changelog
-
-
 contains(MEEGO_EDITION,harmattan) {
-    SUBDIRS += HistorySync
-
     icon.files = HistoryUI80.png
     icon.path = /usr/share/icons/hicolor/80x80/apps
     INSTALLS += icon

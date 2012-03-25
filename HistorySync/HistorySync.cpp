@@ -55,18 +55,18 @@ HistorySync::~HistorySync() {
 
 bool HistorySync::startSync() {
     d->writeLog(QString("HistorySync::startSync()"));
-    int id = MEventFeed::instance()->addItem(QString("/usr/share/icons/hicolor/80x80/apps/HistoryUI80.png"),
-                          QString("This day in history"),
-                                             QString("This is a test!"),
-                          QStringList(),
-                          QDateTime::currentDateTime(),
-                          QString(),
-                          false,
-                          QUrl("tdih://today"),
-                          QString("historysync"),
-                          QString("This day in history"));
+//    int id = MEventFeed::instance()->addItem(QString("/usr/share/icons/hicolor/80x80/apps/HistoryUI80.png"),
+//                          QString("This day in history"),
+//                                             QString("This is a test!"),
+//                          QStringList(),
+//                          QDateTime::currentDateTime(),
+//                          QString(),
+//                          false,
+//                          QUrl("tdih://today"),
+//                          QString("historysync"),
+//                          QString("This day in history"));
 
-    d->writeLog(QString("test eventfeed id:")+QString().setNum(id));
+//    d->writeLog(QString("test eventfeed id:")+QString().setNum(id));
     QTimer::singleShot(100,d->engine,SLOT(start()));
     return true;
 }
@@ -98,7 +98,6 @@ void HistorySync::updateReady(QVariant update) {
     MEventFeed::instance()->removeItemsBySourceName("historysync");
     if(info && !info->title().isEmpty()) {
         title = info->title();
-        // icon-m-transfer-sync
         id = MEventFeed::instance()->addItem(QString("/usr/share/icons/hicolor/80x80/apps/HistoryUI80.png"),
                               QString("This day in history"),
                               title,
