@@ -14,25 +14,31 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
-#include <QMessage>
-#include <QMessageService>
 #include <QDateTime>
 #ifdef DC_HARMATTAN
 #include <meventfeed.h>
+#include "ShareUi.h"
 #endif
+
 #include "HistoryEngine.h"
 #include "rssmanager.h"
 #include "rssparser.h"
 
+#ifdef Q_OS_SYMBIAN
+#include <QMessage>
+#include <QMessageService>
 QTM_USE_NAMESPACE
+#endif
 
 const QUrl KTDIHUrl("http://www.history.com/this-day-in-history/rss");
-const QString KFavoritesFolder("favorites");
+const QString KFAVORITES_FOLDER_NAME("favorites");
 
 struct HistoryEnginePrivate {
     RSSManager* rssManager;
     HistoryInfo* historyInfo;
+#ifdef Q_OS_SYMBIAN
     QMessageService* messageService;
+#endif
     bool invalidateFavList;
     bool started;
 };
@@ -42,15 +48,19 @@ HistoryEngine::HistoryEngine(QObject *parent) :
                QObject(parent)
 {
     d = new HistoryEnginePrivate;
+#ifdef Q_OS_SYMBIAN
     d->messageService = NULL;
+#endif
+    d->historyInfo = NULL;
     d->invalidateFavList = true;
-    d->rssManager = new RSSManager(this);
+    d->rssManager = new RSSManager("tdih",this);
     connect(d->rssManager,SIGNAL(updateAvailable(QUrl,int)),
             this,SLOT(handleUpdateAvailable(QUrl,int)));
     connect(d->rssManager,SIGNAL(error(QString,QUrl)),this,SIGNAL(error(QString,QUrl)));
 }
 
 HistoryEngine::~HistoryEngine() {
+    d->rssManager->removeAll();
     delete d;
 }
 
@@ -105,7 +115,7 @@ QStringList HistoryEngine::favoriteTitles() {
        QStringList favFiles = favFileList();
        RSSParser* parser = new RSSParser(this);
        for(int i=0;i<favFiles.count();++i) {
-           QFile f(KFavoritesFolder+"/"+favFiles.at(i));
+           QFile f(this->favoritesPath()+"/"+favFiles.at(i));
            if(f.open(QIODevice::ReadOnly)) {
                parser->setSource(&f);
                favTitles.append(RSSParser::decodeHtml(parser->itemElement(0,RSSParser::title)).trimmed());
@@ -130,32 +140,36 @@ QVariant HistoryEngine::favorites() {
 bool HistoryEngine::saveAsFavorite() {
     // TODO: error handling is really confusing, fix it.
     bool error = false;
-    QVariant v = historyInfo();
-    HistoryInfo* info = qobject_cast<HistoryInfo*>(v.value<QObject*>());
-    QDir dir;
-    if(!dir.exists(KFavoritesFolder))
-      error = !(dir.mkdir(KFavoritesFolder));
+    HistoryInfo* info = d->historyInfo;
+    if(info && info->isValid()) {
+        QDir dir(d->rssManager->storagePath());
+        if(!dir.exists(KFAVORITES_FOLDER_NAME))
+          error = !(dir.mkdir(KFAVORITES_FOLDER_NAME));
 
-    if(!error) {
-        // TODO: check if file exists.
-        // copy existing file into fav folder with required name.
-        QString target = KFavoritesFolder+"/"+fileNameForKey(info->title());
-        QFileInfo fi(target);
-        qDebug()<<Q_FUNC_INFO<<fi.absoluteFilePath();
-        if(!QFile::exists(target))
-            error = !QFile::copy(d->rssManager->feedFileName(KTDIHUrl),target);
+        if(!error) {
+            // TODO: check if file exists.
+            // copy existing file into fav folder with required name.
+            QString target = this->favoritesPath()+"/"+fileNameForKey(info->title());
+            QFileInfo fi(target);
+            qDebug()<<Q_FUNC_INFO<<fi.absoluteFilePath();
+            if(!QFile::exists(target))
+                error = !QFile::copy(d->rssManager->feedFileName(KTDIHUrl),target);
+        } else {
+            qWarning()<<Q_FUNC_INFO<<"Unable to create favorites folder at "<<dir.absolutePath();
+        }
+
+        if(!error)
+            d->invalidateFavList = true;
+    } else {
+        error = true;
     }
-
-    if(!error)
-        d->invalidateFavList = true;
-
 return !error;
 }
 
 QObject* HistoryEngine::favorite(int favIndex) {
-    HistoryInfo* info;
+    HistoryInfo* info = NULL;
     QString favTitle = favoriteTitles().at(favIndex);
-        QFile f(KFavoritesFolder+"/"+fileNameForKey(favTitle));
+        QFile f(this->favoritesPath()+"/"+fileNameForKey(favTitle));
         if(f.open(QIODevice::ReadOnly)) {
             RSSParser* parser = new RSSParser(this);
             parser->setSource(&f);
@@ -176,7 +190,7 @@ QStringList HistoryEngine::favFileList() {
     if(d->invalidateFavList || favList.isEmpty()) { // TODO: fix cache invalidation
         favList.clear();
         QDir d;
-        d.setPath(KFavoritesFolder);
+        d.setPath(this->favoritesPath());
         if(d.exists()) {
            favList = d.entryList(QStringList(),QDir::Files,QDir::Time);
         }
@@ -184,6 +198,16 @@ QStringList HistoryEngine::favFileList() {
     favList.removeDuplicates();
     d->invalidateFavList = favList.isEmpty();
     return favList;
+}
+
+/*!
+  \brief Returns favirites folder path according to the target OS.
+  **/
+QString HistoryEngine::favoritesPath() const {
+    //In Symbian this returns private folder and using this should work.
+    QString favPath = d->rssManager->storagePath();
+    favPath.append("/"+KFAVORITES_FOLDER_NAME);
+    return favPath;
 }
 
 HistoryInfo* HistoryEngine::parseInfo(RSSParser* parser) {
@@ -202,7 +226,7 @@ int HistoryEngine::favoritesCount() {
 bool HistoryEngine::deleteFavorite(int index) {
     QString favToDel = favFileList().at(index);
     QDir dir;
-    dir.setPath(KFavoritesFolder);
+    dir.setPath(this->favoritesPath());
     d->invalidateFavList = true;
     return dir.remove(favToDel);
 }
@@ -223,17 +247,25 @@ bool HistoryEngine::share(int index) {
     QString title;
     bool result = false;
     if(-1 == index) // today
-        title = d->historyInfo->title();
+        title = (d->historyInfo)?(d->historyInfo->title()):(QString());
     else
         title = favoriteTitles().at(index);
 
     if(!title.isEmpty()) {
+#ifdef DC_HARMATTAN
+        QString des("This day in history:"+title+".");
+        ShareUi s;
+        result = s.share(QString(),des,QString());
+#endif
+
+#ifdef Q_OS_SYMBIAN
         QMessage m;
         m.setBody("This day in history:"+title+"."); // TODO: attach ovi app link
         m.setType(QMessage::Sms);
         if(!d->messageService)
             d->messageService = new QMessageService(this);
         result =  d->messageService->compose(m);
+#endif
     }
     return result;
 }

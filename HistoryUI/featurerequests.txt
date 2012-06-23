@@ -1,0 +1,4 @@
+1.Control feed screen behavior. User should be able to toggle on/off history event in feed screen.
+2. Add Google Doodle.
+3. Add people in history
+

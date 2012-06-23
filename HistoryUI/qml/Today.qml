@@ -5,6 +5,7 @@ import "HistoryConstants.js" as HistoryConstants;
 Page {
     id: today;
     property string pageId;
+    property bool errorInFetchingData;
     orientationLock: PageOrientation.LockPortrait;
     anchors.fill: parent;
     tools: ToolBarLayout {
@@ -30,12 +31,31 @@ Page {
       anchors.fill: parent;
     }
 
+    Text {
+        id: errorText;
+        anchors.centerIn: parent;
+        wrapMode: Text.WordWrap;
+        width: parent.width - 25;
+        smooth: true;
+        color: skin.fontColor;
+        font.pixelSize: skin.contentFontSize;
+    }
+
     Component.onCompleted: {
         pageId = HistoryConstants.todayPageId;
         var info = engine.historyInfo();
         infoLoader.source = "HistoryInfo.qml";
         infoLoader.item.viewTitle = HistoryConstants.todayTitleText;
-        infoLoader.item.info = engine.historyInfo();
+
+        if(errorInFetchingData) {
+            var err = HistoryConstants.netErrorText;
+            if(engine.favoritesCount())
+                err = err + "\n" + HistoryConstants.enjoyFavs;
+
+            errorText.text = err;
+        } else {
+            infoLoader.item.info = engine.historyInfo();
+        }
     }
 
 } //page

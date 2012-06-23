@@ -8,7 +8,6 @@
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
-    HistoryEngine engine;
 #ifdef LOCK_POTRAITORIEN
     Qt::WidgetAttribute attr;
     attr = Qt::WA_LockPortraitOrientation;
@@ -17,6 +16,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     QScopedPointer<QApplication> app(createApplication(argc, argv));
     QScopedPointer<QmlApplicationViewer> viewer(QmlApplicationViewer::create());
     viewer->setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
+    HistoryEngine engine;
     QDeclarativeContext* context = viewer->rootContext();
     context->setContextProperty("engine",(QObject*)&engine);
     viewer->setSource(QUrl("qrc:/qml/main.qml"));

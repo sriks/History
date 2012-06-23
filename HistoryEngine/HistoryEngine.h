@@ -4,7 +4,7 @@
 #include <QUrl>
 #include <QVariant>
 
-#include <QNetworkReply>
+//#include <QNetworkReply>
 class HistoryInfo:public QObject
 {
     Q_OBJECT
@@ -24,6 +24,10 @@ public:
         // TODO: convert to correct date format with QDate
         return mEventDate;
     }
+    bool isValid() const {
+        return !mTitle.isEmpty();
+    }
+
     QString mTitle;
     QString mDescription;
     QUrl mLink;
@@ -67,7 +71,7 @@ private:
     HistoryInfo* parseInfo(RSSParser* parser);
     QString fileNameForKey(const QString& key);
     QStringList favFileList();
-
+    QString favoritesPath() const;
 private:
     HistoryEnginePrivate* d;
 };

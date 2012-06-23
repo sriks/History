@@ -22,23 +22,37 @@ Page {
         border.right: 5; border.bottom: 5
     }
 
-    BusyIndicator {
-         id: busyIndicator;
-         running: true
-         width: 90
-         height: 90
-         anchors.centerIn: parent;
-    }
 
-    Text {
-        anchors.centerIn: parent;
-        text: HistoryConstants.loadingText;
-        color: skin.fontColor;
-        font.pixelSize: skin.subTitleFontSize;
+    Row {
+        id: appnameContainer
+        width: 200;
+        anchors.horizontalCenter: parent.horizontalCenter;
+        anchors.verticalCenter: parent.verticalCenter;
+        spacing: 0;
+
+        Text {
+            id: appname1;
+            smooth: true;
+            text: "HIST";
+            font.pixelSize: 60;
+        }
+
+        BusyIndicator {
+            id: busy;
+            running: true;
+            anchors.verticalCenter: parent.verticalCenter;
+            width: 35;
+        }
+
+        Text {
+            id: appname2;
+            smooth: true;
+            text: "RY";
+            font.pixelSize: 60;
+        }
     }
 
     Component.onCompleted: {
         pageId = HistoryConstants.loadingScreenPageId;
-        busyIndicator.running = true;
     }
 }

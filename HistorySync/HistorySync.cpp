@@ -9,26 +9,38 @@
 #include "HistorySync.h"
 #include "HistoryEngine.h"
 
+//#define LOG_TO_FILE
+
 class HistorySyncPrivate {
 public:
     HistorySyncPrivate() {
         engine = 0;
+#ifdef LOG_TO_FILE
         f = new QFile("/home/user/historysync.log");
         if(f->open(QIODevice::Append))
             writeLog(QString("New Log Starts: ") + QDateTime::currentDateTime().toString());
+#endif
     }
     ~HistorySyncPrivate() {
         delete engine;
+#ifdef LOG_TO_FILE
         f->close();
         delete f;
+#endif
     }
+
     void writeLog(QString msg) {
+#ifdef LOG_TO_FILE
         if(f->isOpen())
             f->write(msg.toAscii());
+#endif
     }
 
     HistoryEngine* engine;
+
+#ifdef LOG_TO_FILE
     QFile* f;
+#endif
 };
 
 HistorySync* createPlugin(const QString& aPluginName,
@@ -55,24 +67,11 @@ HistorySync::~HistorySync() {
 
 bool HistorySync::startSync() {
     d->writeLog(QString("HistorySync::startSync()"));
-//    int id = MEventFeed::instance()->addItem(QString("/usr/share/icons/hicolor/80x80/apps/HistoryUI80.png"),
-//                          QString("This day in history"),
-//                                             QString("This is a test!"),
-//                          QStringList(),
-//                          QDateTime::currentDateTime(),
-//                          QString(),
-//                          false,
-//                          QUrl("tdih://today"),
-//                          QString("historysync"),
-//                          QString("This day in history"));
-
-//    d->writeLog(QString("test eventfeed id:")+QString().setNum(id));
     QTimer::singleShot(100,d->engine,SLOT(start()));
     return true;
 }
 
 bool HistorySync::init() {
-    qDebug()<<Q_FUNC_INFO;
     if(!d->engine) {
         d->engine = new HistoryEngine;
         QObject::connect(d->engine,SIGNAL(updateReady(QVariant)),
@@ -82,18 +81,15 @@ bool HistorySync::init() {
 }
 
 bool HistorySync::uninit() {
-    qDebug()<<Q_FUNC_INFO;
     return true;
 }
 
-void HistorySync::connectivityStateChanged(Sync::ConnectivityType aType, bool aState) {
-    qDebug()<<Q_FUNC_INFO;
-}
+void HistorySync::connectivityStateChanged(Sync::ConnectivityType aType, bool aState) {}
 
 void HistorySync::updateReady(QVariant update) {
     d->writeLog(QString("HistorySync::updateReady"));
     HistoryInfo* info = qobject_cast<HistoryInfo*>(update.value<QObject*>());
-    QString title = "Unable to update";
+    QString title;
     qlonglong id = -1;
     MEventFeed::instance()->removeItemsBySourceName("historysync");
     if(info && !info->title().isEmpty()) {

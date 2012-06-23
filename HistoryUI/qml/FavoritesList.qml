@@ -41,6 +41,8 @@ Page {
         model: 1
         delegate: favListView
 
+        ScrollDecorator { flickableItem: favList }
+
         Component {
             id: favListView;
             Column {
@@ -67,12 +69,13 @@ Page {
                 id: listItem
             Item {
                 width: parent.width;
-                height: favItemText.height + 25;
+                height: 90;//favItemText.height + 25;
 
                 Rectangle {
+                    id: topSeperatorLine
                     width: parent.width-10;
-                    height: 2;
-                    border.color: "white";
+                    height: 1;
+                    color: skin.fontColor;
                     anchors.horizontalCenter: parent.horizontalCenter;
                 }
 
@@ -81,6 +84,8 @@ Page {
                     text: modelData
                     width: parent.width - 10;
                     wrapMode: Text.WordWrap;
+                    maximumLineCount: 3;
+                    elide: Text.ElideRight;
                     color: skin.fontColor;
                     font.pixelSize: skin.contentFontSize;
                     anchors.margins: 5
@@ -88,11 +93,11 @@ Page {
                 }
 
                 Rectangle {
+                    id: bottomSeperatorLine
                     width: parent.width-10;
-                    height: 2;
-                    border.color: "white";
+                    height: 1;
+                    color: skin.fontColor;
                     anchors.horizontalCenter: parent.horizontalCenter;
-
                 }
 
                 MouseArea {

@@ -32,8 +32,9 @@ var allFavsDeletedText    = "All favorites deleted."
 var deleteFailedText      = "Unable to delete."
 var deleteAllFavsConfirmationText = "Do you want to delete all your favorites?"
 var deleteFavConfirmationText = "Do you want to delete this favorite?"
-var aboutText             = "Conceptualized and developed at Dreamcode Device Labs, 2011.\nContent courtesy History.com.\nIcon courtesy openclipart.com"
-var netErrorText          = "Opps! Some problem with your network connection. Cannot continue.\n\n";
+var aboutText             = "Conceptualized and developed at Dreamcode, 2011.\nContent courtesy History.com.\nIcon courtesy openclipart.com"
+var netErrorText          = "Opps! Some problem with your network connection. Cannot show today event.";
+var enjoyFavs             = "But you can enjoy your favorites.";
 var favsEmptyText         = "Empty"
 var loadingText           = "Loading..."
 // app text
